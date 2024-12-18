@@ -1,0 +1,204 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="model.Account" %>
+<%@ page import="java.util.List" %>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de Bord Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --color-primary: #4a6cf7;
+            --color-secondary: #6b7aff;
+            --color-background: #f4f7ff;
+            --color-text-dark: #2c3036;
+            --color-text-light: #6b7280;
+            --color-table-header: #4a6cf7;
+            --shadow-subtle: 0 10px 30px rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 15px 40px rgba(0, 0, 0, 0.1);
+            --transition-smooth: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .dashboard-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow-subtle);
+            width: 100%;
+            max-width: 1000px;
+            padding: 40px;
+            transform: perspective(1000px) rotateX(-10deg);
+            opacity: 0.9;
+            transition: var(--transition-smooth);
+        }
+
+        .dashboard-container:hover {
+            transform: perspective(1000px) rotateX(0);
+            opacity: 1;
+            box-shadow: var(--shadow-hover);
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-header h1 {
+            font-family: 'Poppins', sans-serif;
+            color: var(--color-primary);
+            font-size: 2.2rem;
+            font-weight: 600;
+        }
+
+        .add-agent-btn {
+            display: flex;
+            align-items: center;
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            text-decoration: none;
+        }
+
+        .add-agent-btn:hover {
+            background: var(--color-secondary);
+            transform: translateY(-3px);
+        }
+
+        .add-agent-btn i {
+            margin-right: 10px;
+        }
+
+        .agents-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .agents-table thead {
+            background-color: var(--color-table-header);
+            color: white;
+        }
+
+        .agents-table th,
+        .agents-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .agents-table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        .agents-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .agents-table tr:hover {
+            background-color: rgba(74, 108, 247, 0.05);
+            transition: var(--transition-smooth);
+        }
+
+        .no-agents {
+            text-align: center;
+            color: var(--color-text-light);
+            padding: 20px;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 20px;
+                width: 95%;
+            }
+
+            .dashboard-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .add-agent-btn {
+                margin-top: 15px;
+            }
+
+            .agents-table {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1>Tableau de Bord Admin</h1>
+            <a href="Vue/addAgent.jsp" class="add-agent-btn">
+                <i class="fas fa-user-plus"></i>Ajouter un Agent
+            </a>
+        </div>
+
+        <table class="agents-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nom d'utilisateur</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody>
+    <% 
+        List<Account> agents = (List<Account>) request.getAttribute("agents");
+        if (agents != null && !agents.isEmpty()) {
+            for (Account agent : agents) {
+    %>
+        <tr>
+            <td><%= agent.getId() %></td>
+            <td><%= agent.getUsername() %></td>
+            <td><%= agent.getEmail() %></td>
+        </tr>
+    <% 
+            }
+        } else {
+    %>
+        <tr>
+            <td colspan="3" class="no-agents">Aucun agent disponible</td>
+        </tr>
+    <% 
+        }
+    %>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

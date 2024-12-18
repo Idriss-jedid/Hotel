@@ -1,0 +1,177 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajouter un Hôtel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --background-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-background: rgba(255, 255, 255, 0.15);
+            --text-color: #ffffff;
+            --input-background: rgba(255, 255, 255, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background-gradient);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: var(--card-background);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .form-title {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--text-color);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            grid-column: span 2;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group-half {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 8px;
+            font-weight: 300;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        input, textarea {
+            background: var(--input-background);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-color);
+            padding: 12px 15px;
+            border-radius: 8px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, textarea:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        input[type="file"] {
+            padding: 10px 15px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .submit-btn {
+            grid-column: span 2;
+            padding: 15px;
+            background-color: var(--primary-color);
+            border: none;
+            color: white;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .submit-btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1);
+        }
+
+        @media (max-width: 600px) {
+            .form-grid, .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group, .submit-btn {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="form-title">Ajouter un Hôtel</h1>
+        <form action="${pageContext.request.contextPath}/AddHotelServlet" method="post" enctype="multipart/form-data" class="form-grid">
+            <div class="form-row">
+                <div class="form-group-half">
+                    <label for="name">Nom de l'Hôtel</label>
+                    <input type="text" id="name" name="name" placeholder="Ex: Seaside Resort" required>
+                </div>
+                <div class="form-group-half">
+                    <label for="city">Ville</label>
+                    <input type="text" id="city" name="city" placeholder="Ex: Paris" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group-half">
+                    <label for="stars">Nombre d'Étoiles</label>
+                    <input type="number" id="stars" name="stars" min="1" max="5" placeholder="Ex: 4" required>
+                </div>
+                <div class="form-group-half">
+                    <label for="image">Image de l'Hôtel</label>
+                    <input type="file" id="image" name="image" accept="image/*" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" placeholder="Décrivez l'hôtel" required></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn">Ajouter</button>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="java.util.List" %>
+<%@ page import="model.Hotel" %>
+<%@ page import="dao.Hoteldao" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Ajouter un Type de Chambre</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #9b59b6, #8e44ad);
+            color: #fff;
+        }
+
+        .container {
+            width: 50%;
+            margin: 50px auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        label, select, input {
+            width: 80%;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #8e44ad;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #732d91;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Ajouter un Type de Chambre</h1>
+        <form  action="${pageContext.request.contextPath}/AddRoomTypeServlet"  method="post">
+            <label for="hotelId">Sélectionnez un Hôtel :</label>
+            <select id="hotelId" name="hotelId" required>
+                <% 
+                    // Instancier le DAO
+                    dao.Hoteldao hotelDAO = new dao.Hoteldao();
+                    List<model.Hotel> hotels = hotelDAO.getAllHotels(); // Récupération des hôtels
+
+                    if (hotels != null && !hotels.isEmpty()) {
+                        for (model.Hotel hotel : hotels) {
+                %>
+                            <option value="<%= hotel.getId() %>"><%= hotel.getName() %></option>
+                <%
+                        }
+                    } else {
+                %>
+                    <option disabled>Aucun hôtel disponible</option>
+                <%
+                    }
+                %>
+            </select>
+            
+            <label for="label">Libellé du type de chambre :</label>
+            <input type="text" id="label" name="label" placeholder="Ex: Suite Luxe" required>
+            
+            <label for="capacity">Capacité maximale :</label>
+            <input type="number" id="capacity" name="capacity" min="1" placeholder="Ex: 4" required>
+            
+            <label for="prix">Prix (en €) :</label>
+            <input type="number" id="prix" name="prix" min="0" placeholder="Ex: 150" required>
+            
+            <button type="submit">Ajouter</button>
+        </form>
+    </div>
+</body>
+</html>

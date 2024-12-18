@@ -1,0 +1,102 @@
+package Controller;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
+import model.Account;
+import model.Hotel;
+import model.Roomtype;
+import dao.AccountDAO;
+import dao.Hoteldao;
+import dao.RoomTypeDAO;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.List;
+
+/**
+ * Servlet implementation class LoginServlet
+ */
+//@WebServlet("/LoginServlet")
+public class LoginServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    private AccountDAO accountDAO;
+    private Hoteldao hoteldao;
+    private RoomTypeDAO roomdao;
+
+    @Override
+    public void init() throws ServletException {
+        accountDAO = new AccountDAO();
+        hoteldao = new Hoteldao();
+        roomdao = new RoomTypeDAO();
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        // Récupérer l'email et le mot de passe du formulaire de connexion
+        String email = request.getParameter("email");
+        String password = request.getParameter("password");
+
+        try {
+            // Authentifier le compte
+            Account account = accountDAO.authenticate(email, password);
+
+            if (account != null) {
+                // Créer une session pour l'utilisateur connecté
+                HttpSession session = request.getSession();
+                session.setAttribute("user", account);
+
+                if ("Agent".equals(account.getRole())) {
+                    // Récupérer les hôtels pour l'agent
+                    try {
+                        List<Hotel> hotels = hoteldao.getAllHotels();
+                        List<Roomtype> rooms = roomdao.getAllRoomTypes();
+
+                        // Ajouter les hôtels à la portée de la requête
+                        request.setAttribute("hotels", hotels);
+                        // Ajouter les types de chambres à la portée de la requête
+                        request.setAttribute("rooms", rooms);
+
+                        // Rediriger vers le tableau de bord de l'agent
+                        request.getRequestDispatcher("Vue/agent_dashboard.jsp").forward(request, response);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Erreur lors de la récupération des hôtels.");
+                    }
+                } else if ("admin".equals(account.getRole())) {
+                    // Récupérer les agents pour l'admin
+                    try {
+                        List<Account> agents = accountDAO.getAgents();
+
+                        // Ajouter les agents à la portée de la requête
+                        request.setAttribute("agents", agents);
+
+                        // Rediriger vers le tableau de bord de l'admin
+                        request.getRequestDispatcher("Vue/admin_dashboard.jsp").forward(request, response);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Erreur lors de la récupération des agents.");
+                    }
+                } else {
+                    // Gérer les rôles inattendus
+                    request.setAttribute("message", "Rôle inattendu détecté.");
+                    request.getRequestDispatcher("Vue/login.jsp").forward(request, response);
+                }
+            } else {
+                // Échec de la connexion, rediriger vers la page de connexion avec un message d'erreur
+                request.setAttribute("message", "Email ou mot de passe invalide.");
+                request.getRequestDispatcher("Vue/login.jsp").forward(request, response);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("message", "Une erreur est survenue lors de la connexion. Veuillez réessayer.");
+            request.getRequestDispatcher("Vue/login.jsp").forward(request, response);
+        }
+    }
+}

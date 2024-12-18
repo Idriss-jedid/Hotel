@@ -1,0 +1,255 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="java.util.List" %>
+<%@ page import="model.Hotel" %>
+<%@ page import="dao.Hoteldao" %>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajouter un Type de Chambre</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --color-primary: #4a6cf7;
+            --color-secondary: #6b7aff;
+            --color-background: #f4f7ff;
+            --color-text-dark: #2c3036;
+            --color-text-light: #6b7280;
+            --shadow-subtle: 0 10px 30px rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 15px 40px rgba(0, 0, 0, 0.1);
+            --transition-smooth: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background: var(--color-background);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            line-height: 1.6;
+            perspective: 1000px;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+        }
+
+        .room-type-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow-subtle);
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+            transform: perspective(1000px) rotateX(-10deg);
+            opacity: 0.9;
+            transition: var(--transition-smooth);
+        }
+
+        .room-type-container:hover {
+            transform: perspective(1000px) rotateX(0);
+            opacity: 1;
+            box-shadow: var(--shadow-hover);
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-header h1 {
+            font-family: 'Poppins', sans-serif;
+            color: var(--color-primary);
+            font-size: 2.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .form-header p {
+            color: var(--color-text-light);
+            font-size: 0.9rem;
+        }
+
+        .room-type-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--color-text-dark);
+            display: flex;
+            align-items: center;
+            transition: var(--transition-smooth);
+        }
+
+        .form-group label i {
+            margin-right: 10px;
+            color: var(--color-primary);
+            opacity: 0.7;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: var(--transition-smooth);
+            outline: none;
+            appearance: none;
+        }
+
+        .form-group select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M1 4l5 5 5-5' fill='none' stroke='%238e44ad' stroke-width='2'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(142, 68, 173, 0.1);
+        }
+
+        .submit-btn {
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            background: var(--color-secondary);
+            transform: translateY(-5px);
+        }
+
+        .input-icon {
+            position: relative;
+        }
+
+        .input-icon i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--color-primary);
+            opacity: 0.5;
+        }
+
+        .input-icon input {
+            padding-left: 40px;
+        }
+
+        @media (max-width: 480px) {
+            .room-type-container {
+                width: 95%;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="room-type-container">
+        <div class="form-header">
+            <h1>Ajouter un Type de Chambre</h1>
+            <p>Définissez un nouveau type de chambre pour votre hôtel</p>
+        </div>
+        <form action="${pageContext.request.contextPath}/Controller/AddRoomTypeServlet" method="post" class="room-type-form">
+            <div class="form-group">
+                <label for="hotelId"><i class="fas fa-hotel"></i>Sélectionnez un Hôtel</label>
+                <select id="hotelId" name="hotelId" required>
+                    <% 
+                        dao.Hoteldao hotelDAO = new dao.Hoteldao();
+                        List<model.Hotel> hotels = hotelDAO.getAllHotels();
+                        if (hotels != null && !hotels.isEmpty()) {
+                            for (model.Hotel hotel : hotels) {
+                    %>
+                        <option value="<%= hotel.getId() %>"><%= hotel.getName() %></option>
+                    <%
+                            }
+                        } else {
+                    %>
+                        <option disabled>Aucun hôtel disponible</option>
+                    <%
+                        }
+                    %>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="label"><i class="fas fa-tag"></i>Libellé du type de chambre</label>
+                <div class="input-icon">
+                    <input 
+                        type="text" 
+                        id="label" 
+                        name="label" 
+                        placeholder="Ex: Suite Luxe" 
+                        required
+                        minlength="3"
+                        maxlength="50"
+                    >
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="capacity"><i class="fas fa-users"></i>Capacité maximale</label>
+                <div class="input-icon">
+                    <input 
+                        type="number" 
+                        id="capacity" 
+                        name="capacity" 
+                        min="1" 
+                        max="10"
+                        placeholder="Ex: 4" 
+                        required
+                    >
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="prix"><i class="fas fa-euro-sign"></i>Prix (en €)</label>
+                <div class="input-icon">
+                    <input 
+                        type="number" 
+                        id="prix" 
+                        name="prix" 
+                        min="0" 
+                        max="10000"
+                        step="0.01"
+                        placeholder="Ex: 150" 
+                        required
+                    >
+                </div>
+            </div>
+            
+            <button type="submit" class="submit-btn">
+                <i class="fas fa-plus"></i>Ajouter
+            </button>
+        </form>
+    </div>
+</body>
+</html>

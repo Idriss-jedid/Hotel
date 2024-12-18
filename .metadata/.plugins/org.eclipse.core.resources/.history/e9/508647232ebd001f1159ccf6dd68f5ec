@@ -1,0 +1,75 @@
+package Controller;
+
+import model.Account;
+import dao.AccountDAO;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+import jakarta.servlet.annotation.WebServlet;
+
+/**
+ * Servlet implementation class AjouterAgentServlet
+ */
+@WebServlet("/AjouterAgentServlet")
+public class AjouterAgentServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    private AccountDAO accountDAO;
+
+    public AjouterAgentServlet() {
+        super();
+    }
+
+    @Override
+    public void init() throws ServletException {
+        accountDAO = new AccountDAO();
+    }
+
+    /**
+     * Gère les requêtes GET
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Lecture des paramètres du formulaire
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+        String email = request.getParameter("email");
+        String role = "Agent"; // Rôle par défaut pour les agents
+
+        try {
+            // Création de l'objet Account
+            Account account = new Account(0, username, password, email, role);
+
+            // Ajout de l'agent dans la base de données
+            boolean success = accountDAO.addAccount(account);
+
+            if (success) {
+                // Notification de succès
+                request.setAttribute("message", "Agent ajouté avec succès !");
+                request.setAttribute("messageType", "success");
+            } else {
+                // Notification d'échec
+                request.setAttribute("message", "Échec de l'ajout de l'agent.");
+                request.setAttribute("messageType", "error");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("message", "Erreur : " + e.getMessage());
+            request.setAttribute("messageType", "error");
+        }
+
+        // Redirection vers la page d'ajout d'agent
+        request.getRequestDispatcher("Vue/addAgent.jsp").forward(request, response);
+    }
+
+    /**
+     * Gère les requêtes POST
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        doGet(request, response);
+    }
+}

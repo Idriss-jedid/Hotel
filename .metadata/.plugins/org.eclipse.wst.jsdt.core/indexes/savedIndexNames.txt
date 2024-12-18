@@ -1,0 +1,7 @@
+INDEX VERSION 1.4+C:\Users\21652\Desktop\idriss_malek\.metadata\.plugins\org.eclipse.wst.jsdt.core\indexes
+2736310219.index
+1172028786.index
+2432736877.index
+2267238065.index
+3460231151.index
+3062230187.index

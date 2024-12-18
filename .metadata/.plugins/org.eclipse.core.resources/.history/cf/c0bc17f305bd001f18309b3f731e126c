@@ -1,0 +1,88 @@
+package dao;
+
+import model.HotelRoom;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Hoteldao {
+
+    private final Connection connection ;
+
+    public Hoteldao() {
+        connection = SingleConnection.getInstance(); // Use the singleton connection
+    }
+
+    // Fetch all cities from the database
+    public List<String> getAllCities() throws SQLException {
+        List<String> cities = new ArrayList<>();
+        String query = "SELECT DISTINCT city FROM hotels";
+        try (PreparedStatement stmt = connection.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                cities.add(rs.getString("city"));
+            }
+        }
+        return cities;
+    }
+
+    // Fetch all room types from the database
+    public List<String> getAllRoomTypes() throws SQLException {
+        List<String> roomTypes = new ArrayList<>();
+        String query = "SELECT DISTINCT room_type FROM rooms";
+        try (PreparedStatement stmt = connection.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                roomTypes.add(rs.getString("room_type"));
+            }
+        }
+        return roomTypes;
+    }
+
+    // Fetch all capacities from the database
+    public List<Integer> getAllCapacities() throws SQLException {
+        List<Integer> capacities = new ArrayList<>();
+        String query = "SELECT DISTINCT capacity FROM rooms";
+        try (PreparedStatement stmt = connection.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                capacities.add(rs.getInt("capacity"));
+            }
+        }
+        return capacities;
+    }
+
+    // Search hotels based on criteria
+    public List<HotelRoom> searchHotels(String city, int stars, String roomType, int capacity, int minPrice, int maxPrice) throws SQLException {
+        List<HotelRoom> hotelResults = new ArrayList<>();
+        String query = "SELECT * FROM hotels h JOIN rooms r ON h.hotel_id = r.hotel_id " +
+                       "WHERE h.city = ? AND h.stars = ? AND r.room_type = ? AND r.capacity = ? " +
+                       "AND r.price BETWEEN ? AND ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, city);
+            stmt.setInt(2, stars);
+            stmt.setString(3, roomType);
+            stmt.setInt(4, capacity);
+            stmt.setInt(5, minPrice);
+            stmt.setInt(6, maxPrice);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    HotelRoom hotel = new HotelRoom();
+                    hotel.setHotelName(rs.getString("hotel_name"));
+                    hotel.setCity(rs.getString("city"));
+                    hotel.setNumberOfStars(rs.getInt("stars"));
+                    hotel.setRoomType(rs.getString("room_type"));
+                    hotel.setCapacity(rs.getInt("capacity"));
+                    hotel.setPrice(rs.getInt("price"));
+                    hotel.setImageUrl(rs.getString("image_url"));
+                    hotelResults.add(hotel);
+                }
+            }
+        }
+        return hotelResults;
+    }
+}
